@@ -4,7 +4,8 @@ from datetime import datetime
 from math import pow
 
 import numpy as np
-from bokeh.layouts import column, row, gridplot
+from bokeh.io import export_svgs, export_png
+from bokeh.layouts import column, gridplot, row
 from bokeh.models import ColumnDataSource, LabelSet
 from bokeh.palettes import Spectral6
 from bokeh.plotting import figure, output_file, show
@@ -63,4 +64,6 @@ if __name__ == "__main__":
 
     output_file("run.html")
     p = gridplot(figs, ncols=4, toolbar_location=None)
-    show(p)
+    # show(p)
+    # export_svgs(p, filename="oneKrun.svg")
+    export_png(p, filename="oneKrun.png")
