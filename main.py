@@ -5,25 +5,34 @@ from glob import glob
 
 import jinja2
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-from bokeh.embed import autoload_static, components
+from bokeh.embed import components
 from bokeh.io import export_png, export_svgs
-from bokeh.layouts import column, gridplot, row
-from bokeh.models import ColumnDataSource, LabelSet
-from bokeh.palettes import Spectral8
+from bokeh.layouts import gridplot
+from bokeh.models import ColumnDataSource
+from bokeh.palettes import all_palettes
 from bokeh.plotting import figure, output_file, show
-from bokeh.resources import CDN
-from bokeh.transform import linear_cmap
 from fitparse import FitFile
-from flask import Flask, Markup, render_template
 
+palettes = all_palettes['Viridis'][5]
 COLORS = {'text': '#222222', 'bg': '#FFFFFF', 'special': '#FFFF00',
-          '10k': '#2A4BD3', '4k': '#63B0C4', '1k': Spectral8[0]}
+          '42k': palettes[4], '21k': palettes[3], '10k': palettes[2], '4k': palettes[1], '1k': palettes[0]}
 NCOLS = 7
 SIZE = 150
 BORDER = 10
-app = Flask(__name__)
+
+
+def get_color(distance):
+    if distance < 4:
+        return COLORS['1k']
+    elif distance < 10:
+        return COLORS['4k']
+    elif distance < 21:
+        return COLORS['10k']
+    elif distance < 42:
+        return COLORS['21k']
+    else:
+        return COLORS['42k']
 
 
 def fig(fn):
@@ -45,7 +54,9 @@ def fig(fn):
 
     # print(df.iloc[-1])
     # msg = f"{df.iloc[-1]['timestamp']}  {df.iloc[-1]['distance']}"
-    msg = f"{df.iloc[-1]['distance']/1000}"
+    distance = df.iloc[-1]['distance'] / 1000
+    color = get_color(distance)
+
     # print(df.long)
     # df.plot(kind='line', x='long', y='lat', c='distance', colormap='viridis')
     # plt.scatter(df['long'], df['lat'], c=df['distance'], s=1)
@@ -53,12 +64,11 @@ def fig(fn):
     # plt.show()
 
     source = ColumnDataSource(df)
-    p = figure(plot_width=SIZE, plot_height=SIZE,
-               toolbar_location=None, tools="", title=msg)
+    p = figure(plot_width=SIZE, plot_height=SIZE+10,
+               toolbar_location=None, tools="", title=str(distance))
     # p.circle(df['long'], df['lat'], size=1)
     # p.circle("long", "lat", size=5, source=source)
-    p.line('long', 'lat',  line_width=3, source=source)
-    # p.line('long', 'lat', color=COLORS['1k'], line_width=3, source=source)
+    p.line('long', 'lat', color=color, line_width=3, source=source)
     # p.background_fill_color = COLORS['bg']
     # p.outline_line_color = COLORS['bg']
     p.min_border_left = BORDER
@@ -68,40 +78,49 @@ def fig(fn):
     p.grid.grid_line_color = None
     p.axis.visible = False
 
-    export_png(p, filename=f'img/{fn[4:-4]}.png')
+    # export_png(p, filename=f'img/{fn[4:-4]}.png')
     # p.output_backend = "svg"
     # export_svgs(p, filename=f'img/{fn[4:-4]}.svg')
-    return p
+    return p, distance
 
 
 def main():
-    d = 'FIT/'
     figs = []
-    for p in sorted(os.listdir(d)):
-        fn = f'{d}{p}'
-        print(fn)
-        r = fig(fn)
-        if r:
-            figs.append(r)
+    total = 0
 
-    p = gridplot(figs, ncols=NCOLS, toolbar_location=None)
+    d = 'FIT/'
+    for num, f in enumerate(sorted(os.listdir(d))):
+        fn = f'{d}{f}'
+        print(fn)
+        try:
+            p, distance = fig(fn)
+            figs.append(p)
+            total += distance
+        except TypeError:
+            pass
+
+    grid = gridplot(figs, ncols=NCOLS, toolbar_location=None)
+    # export_png(grid, filename=f'oneKrun.png')
     # output_file('run.html')
     # show(p)
 
-    script, div = components(p)
-
-    template = "templates.html"
+    script, div = components(grid)
     render_vars = {
         "script": script,
-        "div": div
+        "div": div,
+        "number": num,
+        "total": total
     }
+    render(render_vars)
 
+
+def render(render_vars):
+    template = "dup/template.html"
     env = jinja2.Environment(loader=jinja2.FileSystemLoader('.'))
-    output = env.get_template(template).render(render_vars)
+    html = env.get_template(template).render(render_vars)
 
-    # print(output)
-    with open('index.html', 'w')as f:
-        f.write(output)
+    with open('dup/out.html', 'w')as f:
+        f.write(html)
 
 
 if __name__ == "__main__":

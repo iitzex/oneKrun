@@ -11,6 +11,7 @@ def main():
     dst = set(os.listdir(dst_p))
 
     for i in src.difference(dst):
+        print(i)
         copyfile(f'{src_p}{i}', f'{dst_p}{i}')
 
 
