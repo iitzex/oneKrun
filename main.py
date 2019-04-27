@@ -69,9 +69,9 @@ def fig(fn):
     track.min_border_bottom = BORDER
     track.grid.grid_line_color = None
     track.axis.visible = False
-    export_png(track, filename=f'dup/img/{fn[4:-4]}.png')
+    export_png(track, filename=f'WWW/img/{fn[4:-4]}.png')
     # p.output_backend = "svg"
-    # export_svgs(p, filename=f'dup/img/{fn[4:-4]}.svg')
+    # export_svgs(p, filename=f'WWW/img/{fn[4:-4]}.svg')
 
     single = figure(plot_width=SIZE*4, plot_height=SIZE*4+10, title=str(distance),
                     toolbar_location=None, tools="")
@@ -86,8 +86,8 @@ def fig(fn):
                      toolbar_location=None, tools="", )
     cadence.line('distance', 'cadence', line_width=3, source=source)
     plot = column([single, hr, speed, cadence])
-    # export_png(plot, filename=f'dup/track/{fn[4:-4]}.png')
-    save(plot, f'dup/track/{fn[4:-4]}.html',
+    # export_png(plot, filename=f'WWW/track/{fn[4:-4]}.png')
+    save(plot, f'WWW/track/{fn[4:-4]}.html',
          title=timestamp.strftime('%Y/%m/%d'))
 
     return track, distance
@@ -130,11 +130,11 @@ def main():
 
 
 def render(render_vars):
-    template = "dup/template.html"
+    template = "WWW/template.html"
     env = jinja2.Environment(loader=jinja2.FileSystemLoader('.'))
     html = env.get_template(template).render(render_vars)
 
-    with open('dup/index.html', 'w')as f:
+    with open('WWW/index.html', 'w')as f:
         f.write(html)
 
 
