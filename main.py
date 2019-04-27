@@ -63,8 +63,11 @@ def track(fn):
     distance = df.iloc[-1]['distance'] / 1000
     color = get_color(distance)
     timestamp = df.iloc[-1]['timestamp']
-    source = ColumnDataSource(df)
 
+    if os.path.isfile(f'{WWW}/img/{fn[4:-4]}.svg'):
+        return None, distance
+
+    source = ColumnDataSource(df)
     trackmile = figure(plot_width=SIZE*4, plot_height=SIZE*4+10, title=f'{str(distance)}',
                        toolbar_location=None, tools="")
     trackmile.line('long', 'lat', color=color, line_width=3, source=source)
@@ -109,15 +112,15 @@ def track(fn):
     preview.min_border_bottom = BORDER
     preview.grid.grid_line_color = None
     preview.axis.visible = False
-    export_png(preview, filename=f'{WWW}/img/{fn[4:-4]}.png')
-    # p.output_backend = "svg"
-    # export_svgs(p, filename=f'WWW/img/{fn[4:-4]}.svg')
+    # export_png(preview, filename=f'{WWW}/img/{fn[4:-4]}.png')
+    preview.output_backend = "svg"
+    export_svgs(preview, filename=f'{WWW}/img/{fn[4:-4]}.svg')
 
     return preview, distance
 
 
 def main():
-    figs = []
+    # figs = []
     total = 0
     img_html = ''
 
@@ -128,14 +131,14 @@ def main():
         print(path)
         try:
             p, distance = track(path)
-            figs.append(p)
+            # figs.append(p)
             total += distance
-            img_html += f"<p><a href='track/{img_name}.html'><img src='img/{img_name}.png' width='100%'/></a></p>\n"
+            img_html += f"<p><a href='track/{img_name}.html'><img src='img/{img_name}.svg' width='100%'/></a></p>\n"
         except TypeError:
             pass
 
-    plot = gridplot(figs, ncols=NCOLS, toolbar_location=None)
-    export_png(plot, filename=f'oneKrun.png')
+    # plot = gridplot(figs, ncols=NCOLS, toolbar_location=None)
+    # export_png(plot, filename=f'oneKrun.png')
     # output_file('run.html')
     # show(p)
     # script, div = components(plot)
