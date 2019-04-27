@@ -2,7 +2,7 @@
 <html lang="zxx" class="no-js">
 
 <head>
-	<title>Runs</title>
+	<title>Runs {{ title }}</title>
 	<!-- <link rel="shortcut icon" href="img/fav.png"> -->
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta name="author" content="CodePixar">
@@ -10,13 +10,13 @@
 	<meta name="keywords" content="">
 	<meta charset="UTF-8">
 	<link href="https://fonts.googleapis.com/css?family=Poppins:100,300,500" rel="stylesheet">
-	<link rel="stylesheet" href="css/linearicons.css">
-	<link rel="stylesheet" href="css/owl.carousel.css">
-	<link rel="stylesheet" href="css/font-awesome.min.css">
-	<link rel="stylesheet" href="css/nice-select.css">
-	<link rel="stylesheet" href="css/magnific-popup.css">
-	<link rel="stylesheet" href="css/bootstrap.css">
-	<link rel="stylesheet" href="css/main.css">
+	<link rel="stylesheet" href="{{root}}css/linearicons.css">
+	<link rel="stylesheet" href="{{root}}css/owl.carousel.css">
+	<link rel="stylesheet" href="{{root}}css/font-awesome.min.css">
+	<link rel="stylesheet" href="{{root}}css/nice-select.css">
+	<link rel="stylesheet" href="{{root}}css/magnific-popup.css">
+	<link rel="stylesheet" href="{{root}}css/bootstrap.css">
+	<link rel="stylesheet" href="{{root}}css/main.css">
 	<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.css" type="text/css" />
 	<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.js"></script>
 </head>
@@ -30,16 +30,18 @@
 					<div class="logo">
 						<!-- <a href="index.html"><img src="img/logo.png" alt=""></a> -->
 						<h1 class="fz-48">
-							<blockquote class="runs"> Runs</blockquote>
+							<a href="../index.html">
+								<blockquote class="runs"> Runs</blockquote>
+							</a>
 						</h1>
 
 					</div>
 					<div align="right">
 						<div class="main-menubar d-flex align-items-right">
 							<nav class="hide">
-								<a href="index.html">Grid</a>
-								<a href="calendar.html">Calendar</a>
-								<a href="circular.html">Circular</a>
+								<a href="../index.html">Grid</a>
+								<a href="../calendar.html">Calendar</a>
+								<a href="../circular.html">Circular</a>
 							</nav>
 							<div class="menu-bar"><span class="lnr lnr-menu"></span></div>
 						</div>
@@ -64,23 +66,23 @@
 							</div>
 						</div>
 						<br>
-						<h4>{{ number }} Runs</h4>
-						<h4>{{ total }} K</h4>
+						<h4>{{ number }}</h4>
+						<h4>{{ total }}</h4>
 					</div>
 				</div>
 			</div>
 		</section>
 
-		<script src="js/vendor/jquery-2.2.4.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
 			integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
 			crossorigin="anonymous"></script>
-		<script src="js/vendor/bootstrap.min.js"></script>
-		<script src="js/jquery.ajaxchimp.min.js"></script>
-		<script src="js/owl.carousel.min.js"></script>
-		<script src="js/jquery.nice-select.min.js"></script>
-		<script src="js/jquery.magnific-popup.min.js"></script>
-		<script src="js/main.js"></script>
+		<script src="{{root}}js/vendor/jquery-2.2.4.min.js"></script>
+		<script src="{{root}}js/vendor/bootstrap.min.js"></script>
+		<script src="{{root}}js/jquery.ajaxchimp.min.js"></script>
+		<script src="{{root}}js/owl.carousel.min.js"></script>
+		<script src="{{root}}js/jquery.nice-select.min.js"></script>
+		<script src="{{root}}js/jquery.magnific-popup.min.js"></script>
+		<script src="{{root}}js/main.js"></script>
 </body>
 
 </html>

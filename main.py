@@ -59,6 +59,41 @@ def fig(fn):
     timestamp = df.iloc[-1]['timestamp']
     source = ColumnDataSource(df)
 
+    single = figure(plot_width=SIZE*4, plot_height=SIZE*4+10, title=str(distance),
+                    toolbar_location=None, tools="")
+    single.line('long', 'lat', color=color, line_width=3, source=source)
+
+    hr = figure(plot_width=SIZE*6, plot_height=int(SIZE*1.3), title='HEART_RATE',
+                toolbar_location=None, tools="")
+    hr.line('distance', 'heart_rate', line_width=1, source=source)
+
+    speed = figure(plot_width=SIZE*6, plot_height=int(SIZE*1.3), title='SPEED',
+                   toolbar_location=None, tools="")
+    speed.line('distance', 'speed', line_width=1, source=source)
+
+    cadence = figure(plot_width=SIZE*6, plot_height=int(SIZE*1.3), title='CADENCE',
+                     toolbar_location=None, tools="", )
+    cadence.line('distance', 'cadence', line_width=1, source=source)
+
+    altitude = figure(plot_width=SIZE*6, plot_height=int(SIZE*1.3), title='ALTITUDE',
+                      toolbar_location=None, tools="", )
+    altitude.line('distance', 'altitude', line_width=1, source=source)
+
+    plot = column([single, altitude, hr, speed, cadence])
+    # export_png(plot, filename=f'WWW/track/{fn[4:-4]}.png')
+    # save(plot, f'WWW/track/{fn[4:-4]}.html', title=timestamp.strftime('%Y/%m/%d'))
+    script, div = components(plot)
+
+    render_vars = {
+        "title": timestamp.strftime('%Y/%m/%d'),
+        "script": script,
+        "div": div,
+        "number": '',
+        "total": '',
+        "root": '../'
+    }
+    render(render_vars, 'template.html', f'track/{fn[4:-4]}.html')
+
     track = figure(plot_width=SIZE, plot_height=SIZE+10,
                    toolbar_location=None, tools="", title=str(distance))
     track.line('long', 'lat', color=color, line_width=3, source=source)
@@ -72,23 +107,6 @@ def fig(fn):
     export_png(track, filename=f'WWW/img/{fn[4:-4]}.png')
     # p.output_backend = "svg"
     # export_svgs(p, filename=f'WWW/img/{fn[4:-4]}.svg')
-
-    single = figure(plot_width=SIZE*4, plot_height=SIZE*4+10, title=str(distance),
-                    toolbar_location=None, tools="")
-    single.line('long', 'lat', color=color, line_width=3, source=source)
-    hr = figure(plot_width=SIZE*4, plot_height=int(SIZE*1.3), title='HEART_RATE',
-                toolbar_location=None, tools="")
-    hr.line('distance', 'heart_rate', line_width=3, source=source)
-    speed = figure(plot_width=SIZE*4, plot_height=int(SIZE*1.3), title='SPEED',
-                   toolbar_location=None, tools="")
-    speed.line('distance', 'cadence', line_width=3, source=source)
-    cadence = figure(plot_width=SIZE*4, plot_height=int(SIZE*1.3), title='CADENCE',
-                     toolbar_location=None, tools="", )
-    cadence.line('distance', 'cadence', line_width=3, source=source)
-    plot = column([single, hr, speed, cadence])
-    # export_png(plot, filename=f'WWW/track/{fn[4:-4]}.png')
-    save(plot, f'WWW/track/{fn[4:-4]}.html',
-         title=timestamp.strftime('%Y/%m/%d'))
 
     return track, distance
 
@@ -107,7 +125,7 @@ def main():
             p, distance = fig(path)
             figs.append(p)
             total += distance
-            img_html += f"<p><img src='img/{img_name}.png' width='100%'/></p>\n"
+            img_html += f"<p><a href='track/{img_name}.html'><img src='img/{img_name}.png' width='100%'/></a></p>\n"
         except TypeError:
             pass
 
@@ -121,20 +139,21 @@ def main():
     div = ''
 
     render_vars = {
+        "title": "",
         "script": script,
         "div": div,
-        "number": num,
-        "total": total
+        "number": f'{num} Runs',
+        "total": f'{total} K'
     }
-    render(render_vars)
+    render(render_vars, 'template.html', 'index.html')
 
 
-def render(render_vars):
-    template = "WWW/template.html"
+def render(render_vars, input_fn, output_fn):
+    template = f"WWW/{input_fn}"
     env = jinja2.Environment(loader=jinja2.FileSystemLoader('.'))
     html = env.get_template(template).render(render_vars)
 
-    with open('WWW/index.html', 'w')as f:
+    with open(f'WWW/{output_fn}', 'w')as f:
         f.write(html)
 
 
