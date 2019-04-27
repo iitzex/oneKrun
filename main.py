@@ -8,10 +8,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from bokeh.embed import components
 from bokeh.io import export_png, export_svgs
-from bokeh.layouts import gridplot, column
+from bokeh.layouts import column, gridplot
 from bokeh.models import ColumnDataSource
 from bokeh.palettes import all_palettes
-from bokeh.plotting import figure, output_file, show, save
+from bokeh.plotting import figure, output_file, save, show
 from fitparse import FitFile
 
 palettes = all_palettes['Viridis'][5]
@@ -20,6 +20,7 @@ COLORS = {'text': '#222222', 'bg': '#FFFFFF', 'special': '#FFD700',
 NCOLS = 7
 SIZE = 150
 BORDER = 10
+WWW = 'iitzex.github.io'
 
 
 def get_color(distance):
@@ -35,7 +36,7 @@ def get_color(distance):
         return COLORS['42k']
 
 
-def fig(fn):
+def get_data(fn):
     fitfile = FitFile(fn)
     table = []
     for record in fitfile.get_messages('record'):
@@ -43,6 +44,11 @@ def fig(fn):
         table.append(values)
 
     df = pd.DataFrame(table)
+    return df
+
+
+def track(fn):
+    df = get_data(fn)
 
     try:
         df['lat'] = df.position_lat.map(lambda x: x * 180 / (2 << 30))
@@ -59,9 +65,9 @@ def fig(fn):
     timestamp = df.iloc[-1]['timestamp']
     source = ColumnDataSource(df)
 
-    single = figure(plot_width=SIZE*4, plot_height=SIZE*4+10, title=str(distance),
-                    toolbar_location=None, tools="")
-    single.line('long', 'lat', color=color, line_width=3, source=source)
+    trackmile = figure(plot_width=SIZE*4, plot_height=SIZE*4+10, title=f'{str(distance)}',
+                       toolbar_location=None, tools="")
+    trackmile.line('long', 'lat', color=color, line_width=3, source=source)
 
     hr = figure(plot_width=SIZE*6, plot_height=int(SIZE*1.3), title='HEART_RATE',
                 toolbar_location=None, tools="")
@@ -79,36 +85,35 @@ def fig(fn):
                       toolbar_location=None, tools="", )
     altitude.line('distance', 'altitude', line_width=1, source=source)
 
-    plot = column([single, altitude, hr, speed, cadence])
+    plot = column([trackmile, altitude, hr, speed, cadence])
     # export_png(plot, filename=f'WWW/track/{fn[4:-4]}.png')
     # save(plot, f'WWW/track/{fn[4:-4]}.html', title=timestamp.strftime('%Y/%m/%d'))
     script, div = components(plot)
 
     render_vars = {
+        "root": '../',
         "title": timestamp.strftime('%Y/%m/%d'),
-        "script": script,
         "div": div,
-        "number": '',
-        "total": '',
-        "root": '../'
+        "script": f"<h4>{timestamp.strftime('%Y/%m/%d')}<br><br></h4>" + script,
+        "ps": ''
     }
     render(render_vars, 'template.html', f'track/{fn[4:-4]}.html')
 
-    track = figure(plot_width=SIZE, plot_height=SIZE+10,
-                   toolbar_location=None, tools="", title=str(distance))
-    track.line('long', 'lat', color=color, line_width=3, source=source)
-    track.outline_line_color = COLORS['bg']
-    track.min_border_left = BORDER
-    track.min_border_right = BORDER
-    track.min_border_top = BORDER
-    track.min_border_bottom = BORDER
-    track.grid.grid_line_color = None
-    track.axis.visible = False
-    export_png(track, filename=f'WWW/img/{fn[4:-4]}.png')
+    preview = figure(plot_width=SIZE, plot_height=SIZE+10,
+                     toolbar_location=None, tools="", title=str(distance))
+    preview.line('long', 'lat', color=color, line_width=3, source=source)
+    preview.outline_line_color = COLORS['bg']
+    preview.min_border_left = BORDER
+    preview.min_border_right = BORDER
+    preview.min_border_top = BORDER
+    preview.min_border_bottom = BORDER
+    preview.grid.grid_line_color = None
+    preview.axis.visible = False
+    export_png(preview, filename=f'{WWW}/img/{fn[4:-4]}.png')
     # p.output_backend = "svg"
     # export_svgs(p, filename=f'WWW/img/{fn[4:-4]}.svg')
 
-    return track, distance
+    return preview, distance
 
 
 def main():
@@ -122,7 +127,7 @@ def main():
         path = f'{d}{f}'
         print(path)
         try:
-            p, distance = fig(path)
+            p, distance = track(path)
             figs.append(p)
             total += distance
             img_html += f"<p><a href='track/{img_name}.html'><img src='img/{img_name}.png' width='100%'/></a></p>\n"
@@ -135,25 +140,21 @@ def main():
     # show(p)
     # script, div = components(plot)
 
-    script = img_html
-    div = ''
-
     render_vars = {
-        "title": "",
-        "script": script,
-        "div": div,
-        "number": f'{num} Runs',
-        "total": f'{total} K'
+        "title": '',
+        "div": img_html,
+        "script": '',
+        "ps": f'{num} Runs\n<br>{total} K'
     }
     render(render_vars, 'template.html', 'index.html')
 
 
 def render(render_vars, input_fn, output_fn):
-    template = f"WWW/{input_fn}"
+    template = f"{WWW}/{input_fn}"
     env = jinja2.Environment(loader=jinja2.FileSystemLoader('.'))
     html = env.get_template(template).render(render_vars)
 
-    with open(f'WWW/{output_fn}', 'w')as f:
+    with open(f'{WWW}/{output_fn}', 'w')as f:
         f.write(html)
 
 
