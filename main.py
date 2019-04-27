@@ -69,8 +69,9 @@ def fig(fn):
     # p.circle(df['long'], df['lat'], size=1)
     # p.circle("long", "lat", size=5, source=source)
     p.line('long', 'lat', color=color, line_width=3, source=source)
+
     # p.background_fill_color = COLORS['bg']
-    # p.outline_line_color = COLORS['bg']
+    p.outline_line_color = COLORS['bg']
     p.min_border_left = BORDER
     p.min_border_right = BORDER
     p.min_border_top = BORDER
@@ -78,33 +79,41 @@ def fig(fn):
     p.grid.grid_line_color = None
     p.axis.visible = False
 
-    # export_png(p, filename=f'img/{fn[4:-4]}.png')
+    export_png(p, filename=f'dup/img/{fn[4:-4]}.png')
     # p.output_backend = "svg"
-    # export_svgs(p, filename=f'img/{fn[4:-4]}.svg')
+    # export_svgs(p, filename=f'dup/img/{fn[4:-4]}.svg')
     return p, distance
 
 
 def main():
     figs = []
     total = 0
+    img_html = ''
 
     d = 'FIT/'
     for num, f in enumerate(sorted(os.listdir(d))):
-        fn = f'{d}{f}'
-        print(fn)
+        img_name = f[:-4]
+        path = f'{d}{f}'
+        print(path)
         try:
-            p, distance = fig(fn)
+            p, distance = fig(path)
             figs.append(p)
             total += distance
+            # img_html += f'<div style="width:10%;height:10%;"><div class="single-gallery-image" style="background:url(img/{img_name}.svg);"></div></div>\n'
+            img_html += f"<p><img src='img/{img_name}.png' width='100%'/></p>\n"
         except TypeError:
             pass
 
-    grid = gridplot(figs, ncols=NCOLS, toolbar_location=None)
-    # export_png(grid, filename=f'oneKrun.png')
+    print(img_html)
+    plot = gridplot(figs, ncols=NCOLS, toolbar_location=None)
+    # export_png(plot, filename=f'oneKrun.png')
     # output_file('run.html')
     # show(p)
 
-    script, div = components(grid)
+    # script, div = components(plot)
+    script = img_html
+    div = ''
+
     render_vars = {
         "script": script,
         "div": div,
@@ -119,7 +128,7 @@ def render(render_vars):
     env = jinja2.Environment(loader=jinja2.FileSystemLoader('.'))
     html = env.get_template(template).render(render_vars)
 
-    with open('dup/out.html', 'w')as f:
+    with open('dup/index.html', 'w')as f:
         f.write(html)
 
 

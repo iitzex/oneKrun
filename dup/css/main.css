@@ -1042,9 +1042,9 @@ h1, h2, h3, h4, h5, h6 {
   background: #f9f9ff;
   border-left: 2px solid #df003a;
 }
-.self-blockquote {
+.runs {
   color: #fff;
-  background: #df003a;
+  background: #f44a40;
 }
 
 @media (max-width: 767px) {
