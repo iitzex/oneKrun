@@ -64,13 +64,15 @@ def track(fn):
     color = get_color(distance)
     timestamp = df.iloc[-1]['timestamp']
 
-    if os.path.isfile(f'{WWW}/img/{fn[4:-4]}.svg'):
-        return None, distance
+    # if os.path.isfile(f'{WWW}/img/{fn[4:-4]}.svg'):
+    #     return None, distance
+    print(fn)
 
     source = ColumnDataSource(df)
     trackmile = figure(plot_width=SIZE*4, plot_height=SIZE*4+10, title=f'{str(distance)}',
                        toolbar_location=None, tools="")
     trackmile.line('long', 'lat', color=color, line_width=3, source=source)
+    trackmile.axis.visible = False
 
     hr = figure(plot_width=SIZE*6, plot_height=int(SIZE*1.3), title='HEART_RATE',
                 toolbar_location=None, tools="")
@@ -128,7 +130,6 @@ def main():
     for num, f in enumerate(sorted(os.listdir(d))):
         img_name = f[:-4]
         path = f'{d}{f}'
-        print(path)
         try:
             p, distance = track(path)
             # figs.append(p)
@@ -147,7 +148,7 @@ def main():
         "title": '',
         "div": img_html,
         "script": '',
-        "ps": f'{num} Runs\n<br>{total} K'
+        "ps": f'<div class="generic-blockquote">{num} Runs\n<br>{total} K</div>'
     }
     render(render_vars, 'template.html', 'index.html')
 
