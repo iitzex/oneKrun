@@ -60,12 +60,12 @@ def track(fn):
 
     # print(df.iloc[-1])
     # msg = f"{df.iloc[-1]['timestamp']}  {df.iloc[-1]['distance']}"
-    distance = df.iloc[-1]['distance'] / 1000
+    distance = round(df.iloc[-1]['distance'] / 1000, 5)
     color = get_color(distance)
     timestamp = df.iloc[-1]['timestamp']
 
-    # if os.path.isfile(f'{WWW}/img/{fn[4:-4]}.svg'):
-    #     return None, distance
+    if os.path.isfile(f'{WWW}/img/{fn[4:-4]}.svg'):
+        return None, distance
     print(fn)
 
     source = ColumnDataSource(df)
