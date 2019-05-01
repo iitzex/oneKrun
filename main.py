@@ -1,6 +1,6 @@
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from glob import glob
 
 import jinja2
@@ -47,6 +47,27 @@ def get_data(fn):
     return df
 
 
+def TD(ts):
+    h, m, s = ts.seconds//3600, (ts.seconds//60) % 60, ts.seconds % 60
+    return f'{m}:{s}'
+
+
+def get_km(df):
+    df['km'] = df['distance'] / 1000
+    key = 1
+    msg = ''
+    last_lapse = df.iloc[0]['timestamp']
+    for i, j in enumerate(df['km']):
+        if j - key > 0:
+            now = df.iloc[i]['timestamp']
+            diff = now - last_lapse
+            last_lapse = now
+            msg += f'#{key} [{TD(diff)}]\n'
+            key += 1
+
+    return msg
+
+
 def track(fn):
     df = get_data(fn)
 
@@ -62,17 +83,19 @@ def track(fn):
     # msg = f"{df.iloc[-1]['timestamp']}  {df.iloc[-1]['distance']}"
     distance = round(df.iloc[-1]['distance'] / 1000, 5)
     color = get_color(distance)
-    timestamp = df.iloc[-1]['timestamp']
+    begintime = df.iloc[0]['timestamp']
+    endtime = df.iloc[-1]['timestamp']
+    interval = endtime - begintime
 
-    if os.path.isfile(f'{WWW}/img/{fn[4:-4]}.svg'):
-        return None, distance
+    # if os.path.isfile(f'{WWW}/img/{fn[4:-4]}.svg'):
+    #     return None, distance, interval
     print(fn)
 
     source = ColumnDataSource(df)
     trackmile = figure(plot_width=SIZE*4, plot_height=SIZE*4+10, title=f'{str(distance)}',
                        toolbar_location=None, tools="")
     trackmile.line('long', 'lat', color=color, line_width=3, source=source)
-    trackmile.axis.visible = False
+    # trackmile.axis.visible = False
 
     hr = figure(plot_width=SIZE*6, plot_height=int(SIZE*1.3), title='HEART_RATE',
                 toolbar_location=None, tools="")
@@ -90,17 +113,25 @@ def track(fn):
                       toolbar_location=None, tools="", )
     altitude.line('distance', 'altitude', line_width=1, source=source)
 
-    plot = column([trackmile, altitude, hr, speed, cadence])
+    plot = column([trackmile, altitude, hr, speed])
     # export_png(plot, filename=f'WWW/track/{fn[4:-4]}.png')
     # save(plot, f'WWW/track/{fn[4:-4]}.html', title=timestamp.strftime('%Y/%m/%d'))
     script, div = components(plot)
+    ps = f"{endtime.strftime('%Y/%m/%d')}"
+    ps += '<br>' + f"{distance} K"
+    ps += '<br>' + f"{interval}"
+
+    ps += '<br><br>'
+    ps += get_km(df).replace('\n', '<br>\n')
+    # print(km)
+    # ps += str(km)
 
     render_vars = {
         "root": '../',
-        "title": timestamp.strftime('%Y/%m/%d'),
+        "title": endtime.strftime('%Y/%m/%d'),
         "div": div,
-        "script": f"<h4>{timestamp.strftime('%Y/%m/%d')}<br><br></h4>" + script,
-        "ps": ''
+        "script": script,
+        "ps": ps
     }
     render(render_vars, 'template.html', f'track/{fn[4:-4]}.html')
 
@@ -118,24 +149,29 @@ def track(fn):
     preview.output_backend = "svg"
     export_svgs(preview, filename=f'{WWW}/img/{fn[4:-4]}.svg')
 
-    return preview, distance
+    return preview, distance, interval
 
 
 def main():
     # figs = []
-    total = 0
+    total_distance = 0
+    total_time = timedelta()
     img_html = ''
 
     d = 'FIT/'
-    for num, f in enumerate(sorted(os.listdir(d))):
+    for num, f in enumerate(sorted(os.listdir(d), reverse=True)):
         img_name = f[:-4]
         path = f'{d}{f}'
         try:
-            p, distance = track(path)
+            p, distance, interval = track(path)
             # figs.append(p)
-            total += distance
+            total_distance += distance
+            total_time += interval
+            print(p, total_distance, total_time)
+
             img_html += f"<p><a href='track/{img_name}.html'><img src='img/{img_name}.svg' width='100%'/></a></p>\n"
-        except TypeError:
+        except TypeError as e:
+            print(e)
             pass
 
     # plot = gridplot(figs, ncols=NCOLS, toolbar_location=None)
@@ -144,11 +180,12 @@ def main():
     # show(p)
     # script, div = components(plot)
 
+    print(total_time)
     render_vars = {
         "title": '',
         "div": img_html,
         "script": '',
-        "ps": f'<div class="generic-blockquote">{num} Runs\n<br>{total} K</div>'
+        "ps": f'{num+1} Runs\n<br>{round(total_distance, 5)} K\n<br>{total_time}'
     }
     render(render_vars, 'template.html', 'index.html')
 
