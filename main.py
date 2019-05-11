@@ -19,7 +19,8 @@ BORDER = 10
 WWW = 'iitzex.github.io'
 PALETTES = all_palettes['Viridis'][5]
 COLORS = {'text': '#222222', 'bg': '#FFFFFF', 'special': '#FFD700',
-          '42k': PALETTES[4], '21k': PALETTES[3], '10k': PALETTES[2], '4k': PALETTES[1], '1k': PALETTES[0]}
+          #   '42k': PALETTES[4], '21k': PALETTES[3], '10k': PALETTES[2], '4k': PALETTES[1], '1k': PALETTES[0]}
+          '42k': PALETTES[4], '21k': PALETTES[3], '10k': '#6FA5B9', '4k': '#4A7F9F', '1k': '#2E4E60'}
 
 
 def get_data(fn):
