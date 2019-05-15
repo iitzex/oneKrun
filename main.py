@@ -54,16 +54,12 @@ def analysis(df):
     msg = ''
     last_lapse = df.iloc[0]['timestamp']
     for i, j in enumerate(df['km']):
-        if j - key > 0:
+        if j - key > 0 or i == len(df['km']) - 1:
             now = df.iloc[i]['timestamp']
             diff = now - last_lapse
             last_lapse = now
-            msg += f'#{key} [{TD(diff)}]<br>\n'
+            msg += f'<span>#{key} [{TD(diff)}]<br></span>\n'
             key += 1
-
-    now = df.iloc[i]['timestamp']
-    diff = now - last_lapse
-    msg += f'#{key} [{TD(diff)}]<br>\n'
 
     return msg
 
@@ -149,11 +145,20 @@ def main():
             # figs.append(p)
             total_distance += distance
             total_time += interval
-            img_html += f"<p><a href='track/{img_name}.html'><img src='img/{img_name}.svg' width='90%'/></a></p>\n"
+            # img_html += f"<p><a href='track/{img_name}.html'><img src='img/{img_name}.svg' width='90%'/></a></p>\n"
+            img_html += f""" <div class="portfolio-content">
+                                <figure>
+                                    <img src="img/{img_name}.svg" alt="" width="90%">
+                                </figure>
+                                <div class="entry-content flex flex-column align-items-center justify-content-center">
+                                    <h3><a href="track/{img_name}.html">{img_name}</a></h3>
+                                </div>
+							</div>
+                             """
         except TypeError as e:
             print(e)
 
-    ps = f'{num+1} Runs\n<br>'
+    ps = f'<span>&nbsp{num+1} Runs\n<br></span>'
     ps += f'{round(total_distance, 5)} K\n<br>'
     ps += f'{total_time}'
 

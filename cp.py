@@ -3,7 +3,7 @@ from shutil import copyfile
 
 
 src_p = '/Volumes/GARMIN/GARMIN/ACTIVITY/'
-dst_p = 'FIT/'
+dst_p = 'RAW/'
 
 
 def main():
