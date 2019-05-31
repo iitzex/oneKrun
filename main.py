@@ -101,7 +101,7 @@ def track(fn):
 
     plot = column([trackmile, altitude, hr, speed])
     script, div = components(plot)
-    ps = f"<div class='fz-30 red'>{endtime.strftime('%m.%d.%Y')}</div><br>\n"
+    ps = f"<div class='fz-30 title'>{endtime.strftime('%m.%d.%Y')}</div><br>\n"
     ps += f"{distance} K<br>\n"
     ps += f"{interval}"
     ps += '<br><br>' + analysis(df)
@@ -151,7 +151,7 @@ def main():
                                     <img src="img/{img_name}.svg" alt="" width="90%">
                                 </figure>
                                 <div class="entry-content flex flex-column align-items-center justify-content-center">
-                                    <h3><a href="track/{img_name}.html">{img_name}</a></h3>
+                                    <h3><a href="track/{img_name}.html"><div class='title'>{img_name}</div></a></h3>
                                 </div>
 							</div>
                              """
